@@ -201,6 +201,43 @@ class LlmCalibrationCache(CalibrationCache):
             samples = samples[: self.config.num_samples]
             for sample in samples:
                 yield sample
+        elif self.config.data == "custom":
+            # assert tokenizer is not None, "tokenizer is required for custom dataset"
+            #dataset = load_dataset(self.config.dataset_path, split="validation")
+            dataset = load_dataset("json", data_files=self.config.dataset_path, split="train")
+            text_column = "input_ids"
+
+            dataset = dataset.shuffle(seed=42)
+            rng = random.Random(42)
+            samples, num_tokens = [], 0
+            for _data in dataset:
+                line_encoded = _data[text_column]
+                # line = line.strip()
+                # line_encoded is a list of token ids
+                #line_encoded = tokenizer.encode(line)
+                seq_length = len(line_encoded)
+                if seq_length == 0:
+                    continue
+                if self.config.min_seq_length > 0 and seq_length < self.config.min_seq_length:
+                    continue
+                if self.config.max_seq_length > 0 and seq_length > self.config.max_seq_length:
+                    continue
+                # sample is a tensor of shape (1, seq_length)
+                sample = torch.tensor([line_encoded])
+                if seq_length > self.config.seq_length:
+                    tok = rng.randint(0, seq_length - self.config.seq_length)
+                    sample = sample[:, tok : tok + self.config.seq_length]
+                samples.append(sample)
+                num_tokens += sample.shape[1]
+                if len(samples) >= self.config.num_samples and num_tokens >= self.config.num_tokens:
+                    break
+            # now concatenate all samples and split according to seq_length
+            samples = torch.cat(samples, dim=1).split(self.config.seq_length, dim=1)
+            if num_tokens > self.config.num_tokens:
+                samples = samples[:-1]
+            samples = samples[: self.config.num_samples]
+            for sample in samples:
+                yield sample
         else:
             raise NotImplementedError(f"Calibration dataset {self.config.data} is not supported")
 

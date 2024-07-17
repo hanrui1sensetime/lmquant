@@ -1,5 +1,5 @@
 seed: 12345
-save_model: true
+save_model: false
 model:
   name: pulse_v14_20b_gpt4_hf
   root: /root/workspace/external_data/pulse_v14_20b_gpt4_hf/base
@@ -16,6 +16,7 @@ calib:
 quant:
   post_rotary: true
   develop_dtype: torch.float32
+  # develop_dtype: torch.float16
   wgts:
     static: true
     dtype: null

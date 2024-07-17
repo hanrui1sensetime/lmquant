@@ -1,0 +1,18 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python Debugger: Module",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "lmquant.llm.run",
+            "env": {"HF_ENDPOINT": "https://hf-mirror.com", "CUDA_VISIBLE_DEVICES": "0, 3"},
+            "args": ["configs/llm.yaml", "configs/qoq/gchn.yaml", "--model-name", "pulse-20b", "--model-path", "/root/workspace/external_data/pulse_v14_20b_gpt4_hf/base", 
+            "--smooth-xw-alpha", "0", "--smooth-xw-beta", "1", "--smooth-yx-alpha", "0.5", "--smooth-yx-beta", "0", "--save-model"],
+            "justMyCode": false
+        }
+    ]
+}
